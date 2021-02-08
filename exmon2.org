@@ -1,0 +1,460 @@
+* TODOs
+
+** DONE sort out big-endian table at $8346
+   CLOSED: [2021-02-06 Sat 19:05]
+** DONE tables that are offset
+   CLOSED: [2021-02-08 Mon 00:22]
+
+BASIC_versions
+unk_85FE
+unk_8603
+
+** DONE .virtual markup for loc_8563
+   CLOSED: [2021-02-08 Mon 00:22]
+** DONE $85d6 reference in sub_8609
+   CLOSED: [2021-02-06 Sat 19:18]
+
+** DONE $8b6f reference at loc_8CF2
+   CLOSED: [2021-02-06 Sat 19:08]
+** DONE $8be4 reference in sub_8CFD
+   CLOSED: [2021-02-06 Sat 19:09]
+** TODO $ww68 reference at $8bce
+** DONE $8c42 reference at $98b5
+   CLOSED: [2021-02-06 Sat 19:12]
+** DONE $8245 reference at $98bf
+   CLOSED: [2021-02-06 Sat 19:12]
+** TODO workspace code offset reference at $9999
+
+Looks like some slightly fiddly code....
+
+** DONE $8c98 reference at $8c0f?
+   CLOSED: [2021-02-06 Sat 15:11]
+** TODO $wwa5 reference at $98ee
+** TODO various simulate references to basic_TOP
+
+This needs another name in this context.
+
+** TODO search/fill ZP
+
+Overlaps some other stuff...
+
+$2c...$43 = search data
+$44...$48 = offsets of wildcards
+$65 = number of wildcards
+
+** TODO relocator ZP
+
+4-byte tables at $26, $2a $2e
+
+$2a overlaps BASIC IWA - fix up naming!
+
+** TODO workspace layout
+
+81d7 - various offsets
+
+* Workspace page layout
+
+(zp $xx) - this byte is swapped with the corresponding zp value on entry. See $8962, $8a06
+
+** $00-$07: Storage
+
+| Offset | What                                            |
+|--------+-------------------------------------------------|
+|     00 | workspace ready flag - 0=ready, other=not ready |
+|     01 | OSWRCH VDU queue counter                        |
+|     02 | keyboard auto-repeat delay from $0254           |
+|     03 | ESCAPE/BREAK effect from $0258                  |
+|     04 | character destination status from $027c         |
+|     05 | cursor editing status from $027d                |
+|     06 | input source from $0241                         |
+|     07 | initialized to $dc by $818c                     |
+
+** $08-$91: Backup of zero page
+
+| Offset | What     | What                           | code ref |
+|--------+----------+--------------------------------+----------|
+|     08 | (zp $08) |                                |          |
+|     09 | (zp $09) |                                |          |
+|     0a | (zp $0a) |                                |          |
+|     0b | (zp $0b) |                                |          |
+|     0c | (zp $0c) |                                |          |
+|     0d | (zp $0d) |                                |          |
+|     0e | (zp $0e) |                                |          |
+|     0f | (zp $0f) |                                |          |
+|     10 | (zp $10) |                                |          |
+|     11 | (zp $11) |                                |          |
+|     12 | (zp $12) |                                |          |
+|     13 | (zp $13) |                                |          |
+|     14 | (zp $14) |                                |          |
+|     15 | (zp $15) |                                |          |
+|     16 | (zp $16) |                                |          |
+|     17 | (zp $17) |                                |          |
+|     18 | (zp $18) |                                |          |
+|     19 | (zp $19) |                                |          |
+|     1a | (zp $1a) |                                |          |
+|     1b | (zp $1b) |                                |          |
+|     1c | (zp $1c) |                                |          |
+|     1d | (zp $1d) |                                |          |
+|     1e | (zp $1e) |                                |          |
+|     1f | (zp $1f) |                                |          |
+|     20 | (zp $20) | manipulated by $8c4a           |          |
+|     21 | (zp $21) |                                |          |
+|     22 | (zp $22) |                                |          |
+|     23 | (zp $23) |                                |          |
+|     24 | (zp $24) |                                |          |
+|     25 | (zp $25) |                                |          |
+|     26 | (zp $26) |                                |          |
+|     27 | (zp $27) |                                |          |
+|     28 | (zp $28) |                                |          |
+|     29 | (zp $29) |                                |          |
+|     2a | (zp $2a) |                                |          |
+|     2b | (zp $2b) |                                |          |
+|     2c | (zp $2c) |                                |          |
+|     2d | (zp $2d) |                                |          |
+|     2e | (zp $2e) |                                |          |
+|     2f | (zp $2f) |                                |          |
+|     30 | (zp $30) |                                |          |
+|     31 | (zp $31) |                                |          |
+|     32 | (zp $32) |                                |          |
+|     33 | (zp $33) |                                |          |
+|     34 | (zp $34) |                                |          |
+|     35 | (zp $35) |                                |          |
+|     36 | (zp $36) |                                |          |
+|     37 | (zp $37) |                                |          |
+|     38 | (zp $38) |                                |          |
+|     39 | (zp $39) |                                |          |
+|     3a | (zp $3a) |                                |          |
+|     3b | (zp $3b) |                                |          |
+|     3c | (zp $3c) |                                |          |
+|     3d | (zp $3d) |                                |          |
+|     3e | (zp $3e) |                                |          |
+|     3f | (zp $3f) |                                |          |
+|     40 | (zp $40) |                                |          |
+|     41 | (zp $41) |                                |          |
+|     42 | (zp $42) |                                |          |
+|     43 | (zp $43) |                                |          |
+|     44 | (zp $44) |                                |          |
+|     45 | (zp $45) |                                |          |
+|     46 | (zp $46) |                                |          |
+|     47 | (zp $47) |                                |          |
+|     48 | (zp $48) |                                |          |
+|     49 | (zp $49) |                                |          |
+|     4a | (zp $4a) |                                |          |
+|     4b | (zp $4b) |                                |          |
+|     4c | (zp $4c) |                                |          |
+|     4d | (zp $4d) |                                |          |
+|     4e | (zp $4e) |                                |          |
+|     4f | (zp $4f) |                                |          |
+|     50 | (zp $50) |                                |          |
+|     51 | (zp $51) |                                |          |
+|     52 | (zp $52) |                                |          |
+|     53 | (zp $53) |                                |          |
+|     54 | (zp $54) |                                |          |
+|     55 | (zp $55) |                                |          |
+|     56 | (zp $56) |                                |          |
+|     57 | (zp $57) |                                |          |
+|     58 | (zp $58) |                                |          |
+|     59 | (zp $59) |                                |          |
+|     5a | (zp $5a) |                                |          |
+|     5b | (zp $5b) |                                | 8096     |
+|     5c | (zp $5c) |                                |          |
+|     5d | (zp $5d) |                                |          |
+|     5e | (zp $5e) |                                |          |
+|     5f | (zp $5f) |                                |          |
+|     60 | (zp $60) |                                |          |
+|     61 | (zp $61) |                                |          |
+|     62 | (zp $62) | socket of ROM containing BASIC | 81a8     |
+|     63 | (zp $63) | $e??                           | 81ad     |
+|     64 | (zp $64) |                                |          |
+|     65 | (zp $65) |                                |          |
+|     66 | (zp $66) |                                |          |
+|     67 | (zp $67) |                                |          |
+|     68 | (zp $68) | OSCLI buffer?                  |          |
+|     69 | (zp $69) |                                |          |
+|     6a | (zp $6a) |                                |          |
+|     6b | (zp $6b) |                                |          |
+|     6c | (zp $6c) |                                |          |
+|     6d | (zp $6d) |                                |          |
+|     6e | (zp $6e) |                                |          |
+|     6f | (zp $6f) |                                |          |
+|     70 | (zp $70) |                                |          |
+|     71 | (zp $71) |                                |          |
+|     72 | (zp $72) |                                |          |
+|     73 | (zp $73) |                                |          |
+|     74 | (zp $74) |                                |          |
+|     75 | (zp $75) |                                |          |
+|     76 | (zp $76) |                                |          |
+|     77 | (zp $77) |                                |          |
+|     78 | (zp $78) |                                |          |
+|     79 | (zp $79) |                                |          |
+|     7a | (zp $7a) |                                |          |
+|     7b | (zp $7b) |                                |          |
+|     7c | (zp $7c) |                                |          |
+|     7d | (zp $7d) |                                |          |
+|     7e | (zp $7e) |                                |          |
+|     7f | (zp $7f) |                                |          |
+|     80 | (zp $80) |                                |          |
+|     81 | (zp $81) |                                |          |
+|     82 | (zp $82) |                                |          |
+|     83 | (zp $83) |                                |          |
+|     84 | (zp $84) |                                |          |
+|     85 | (zp $85) |                                |          |
+|     86 | (zp $86) |                                |          |
+|     87 | (zp $87) |                                |          |
+|     88 | (zp $88) |                                |          |
+|     89 | (zp $89) |                                |          |
+|     8a | (zp $8a) |                                |          |
+|     8b | (zp $8b) |                                |          |
+|     8c | (zp $8c) |                                |          |
+|     8d | (zp $8d) |                                |          |
+|     8e | (zp $8e) |                                |          |
+|     8f | (zp $8f) |                                |          |
+|     90 |          |                                |          |
+|     91 |          |                                |          |
+
+** $92-$dd: Code from loc_8563
+
++$xx +xx are offsets from start of code, as used by (workspace_code),Y
+in the code.
+
+=ww= refers to workspace page - when absolute, fixed up.
+
+=ee= is ROM socket of Exmon, fixed up on startup.x
+
+*** ww92 - call routine in BASIC ROM, then return to Exmon
+
+ Fix up ww96/ww97 first.
+
+| Offset | c/o | c/o | instr     | comment |
+|--------+-----+-----+-----------+---------|
+|     92 | $00 |  00 | jsr $ww9c |         |
+|     93 | $01 |  01 |           |         |
+|     94 | $02 |  02 |           |         |
+|     95 | $03 |  03 | jsr $0000 |         |
+|     96 | $04 |  04 |           |         |
+|     97 | $05 |  05 |           |         |
+|     98 | $06 |  06 | ldx #ee   |         |
+|     99 | $07 |  07 |           |         |
+|     9a | $08 |  08 | bpl $ww9f |         |
+|     9b | $09 |  09 |           |         |
+
+*** ww9c - select BASIC ROM
+
+| Offset | c/o | c/o | instr     | comment              |
+|--------+-----+-----+-----------+----------------------|
+| 9c     | $0a |  10 | ldx $024b | X = BASIC ROM socket |
+| 9d     | $0b |  11 |           |                      |
+| 9e     | $0c |  12 |           |                      |
+| 9f     | $0d |  13 | stx $f4   | select BASIC ROM     |
+| a0     | $0e |  14 |           |                      |
+| a1     | $0f |  15 | stx $fe30 | select BASIC ROM     |
+| a2     | $10 |  16 |           |                      |
+| a3     | $11 |  17 |           |                      |
+| a4     | $12 |  18 | rts       |                      |
+
+*** wwa5 - jump to routine with other ROM selected
+
+| Offset | c/o | c/o | instr     | comment                           |
+|--------+-----+-----+-----------+-----------------------------------|
+| a5     | $13 |  19 | php       |                                   |
+| a6     | $14 |  20 | pha       |                                   |
+| a7     | $15 |  21 | lda #$ff  |                                   |
+| a8     | $16 |  22 |           |                                   |
+| a9     | $17 |  23 | sta $f4   |                                   |
+| aa     | $18 |  24 |           |                                   |
+| ab     | $19 |  25 | sta $fe30 |                                   |
+| ac     | $1a |  26 |           |                                   |
+| ad     | $1b |  27 |           |                                   |
+| ae     | $1c |  28 | pla       |                                   |
+| af     | $1d |  29 | plp       |                                   |
+| b0     | $1e |  30 | jmp $0000 | replaced by simulated instruction |
+| b1     | $1f |  31 |           |                                   |
+| b2     | $20 |  32 |           |                                   |
+
+*** wwb3 - jump to $9904 in Exmon ROM
+
+| Offset | c/o | c/o | instr     | comment |
+|--------+-----+-----+-----------+---------|
+| b3     | $21 |  33 | jsr $wwca |         |
+| b4     | $22 |  34 |           |         |
+| b5     | $23 |  35 |           |         |
+| b6     | $24 |  36 | jmp $9904 |         |
+| b7     | $25 |  37 |           |         |
+| b8     | $26 |  38 |           |         |
+
+*** wwb9 - simulate branch opcode. 
+
+Poke opcode at +$27 and execute; jumps to 99a0 if taken, 992d if not
+taken.
+
+| Offset | c/o | c/o | instr     | comment |
+|--------+-----+-----+-----------+---------|
+| b9     | $27 |  39 | beq $wwbe |         |
+| ba     | $28 |  40 |           |         |
+| bb     | $29 |  41 | jmp $992d |         |
+| bc     | $2a |  42 |           |         |
+| bd     | $2b |  43 |           |         |
+| be     | $2c |  44 | jmp $99a0 |         |
+| bf     | $2d |  45 |           |         |
+| c0     | $2e |  46 |           |         |
+
+*** wwc1 - ???
+
+Called by =cmd_J=.
+
+| Offset | c/o | c/o | instr     | comment |
+|--------+-----+-----+-----------+---------|
+| c1     | $2f |  47 | jsr $9a43 |         |
+| c2     | $30 |  48 |           |         |
+| c3     | $31 |  49 |           |         |
+| c4     | $32 |  50 | jsr $wwca |         |
+| c5     | $33 |  51 |           |         |
+| c6     | $34 |  52 |           |         |
+| c7     | $35 |  53 | jmp $9a78 |         |
+| c8     | $36 |  54 |           |         |
+| c9     | $37 |  55 |           |         |
+
+*** wwca - select Exmon II ROM
+
+| Offset | c/o | c/o | instr     | comment |
+|--------+-----+-----+-----------+---------|
+| ca     | $38 |  56 | php       |         |
+| cb     | $39 |  57 | pha       |         |
+| cc     | $3a |  58 | lda #ee   |         |
+| cd     | $3b |  59 |           |         |
+| ce     | $3c |  60 | sta $f4   |         |
+| cf     | $3d |  61 |           |         |
+| d0     | $3e |  62 | sta $fe30 |         |
+| d1     | $3f |  63 |           |         |
+| d2     | $40 |  64 |           |         |
+| d3     | $41 |  65 | pla       |         |
+| d4     | $42 |  66 | plp       |         |
+| d5     | $43 |  67 | rts       |         |
+
+*** wwd6
+
+| Offset | c/o | c/o | instr       | comment |
+|--------+-----+-----+-------------+---------|
+| d6     | $44 |  68 | jsr $ww9f   |         |
+| d7     | $45 |  69 |             |         |
+| d8     | $46 |  70 |             |         |
+| d9     | $47 |  71 | sta ($f6),y |         |
+| da     | $48 |  72 |             |         |
+| db     | $49 |  73 | jmp $ww98   |         |
+| dc     | $4a |  74 |             |         |
+| dd     | $4b |  75 |             |         |
+
+** $de: ???
+
+- de :: initialized to 0 by $818c
+	see also $810e, $8190, $8260, $9b9e
+
+** $df-$f3: Breakpoints
+
+Despite what the manual says, max breakpoint count appears to be 7.
+
+- df :: breakpoint 0 LSB
+- e0 :: .
+- e1 :: .
+- e2 :: .
+- e3 :: .
+- e4 :: .
+- e5 :: breakpoint 6 LSB
+
+- e6 :: breakpoint 0 MSB
+- e7 :: .
+- e8 :: .
+- e9 :: .
+- ea :: .
+- eb :: .
+- ec :: breakpoint 6 MSB
+
+- ed :: breakpoint 0 prev contents
+- ee :: .
+- ef :: .
+- f0 :: .
+- f1 :: .
+- f2 :: .
+- f3 :: breakpoint 6 prev contents
+
+** $f4-$ff: ???
+
+- f4 :: 
+- f5 :: 
+- f6 :: (zp $f6)
+- f7 :: (zp $f7)
+- f8 :: 
+- f9 :: 
+- fa :: 
+- fb :: 
+- fc :: 
+- fd :: 
+- fe :: 
+- ff :: 
+
+* Big-endian table at $8346
+
+- 00 :: $837e -- ?=help
+- 01 :: $8f37 -- @=set PC
+- 02 :: $8f1f -- A=set accumulator
+- 03 :: $9b04 -- BS/BC=brk set/clear
+- 04 :: $8630 -- C=calculate
+- 05 :: $a39e -- D=disassemble
+- 06 :: $a432 -- E=edit or assemble
+- 07 :: $a1a4 -- FB/FS=fill
+- 08 :: $99f3 -- G=go
+- 09 :: $8def -- H=toggle printer on/off
+- 0a :: $8d62 -- I=invert flag
+- 0b :: $9a5c -- J=JSR
+- 0c :: $92ac -- K=disassemble & save
+- 0d :: $a39e -- L=list memgory
+- 0e :: $9ec7 -- M=move block
+- 0f :: $86d9 -- N=NEW (reset BASIC pointers)
+- 10 :: $8fdb -- OB/OW=call OSBYTE/OSWORD
+- 11 :: $8f53 -- P=set panel start
+- 12 :: $868f -- Q=quit
+- 13 :: $9f9e -- R=relocate
+- 14 :: $a28e -- SB/SS=search
+- 15 :: $9695 -- T=trace
+- 16 :: $8298 -- U 
+- 17 :: $a14f -- V=verify blocks
+- 18 :: $8f65 -- WI=set window size
+- 19 :: $8f27 -- X=set X register
+- 1a :: $8f2f -- Y=set Y register
+- 1b :: $9bc3 -- Z=dual screen stuff
+
+* Help
+
+#+BEGIN_EXAMPLE
+      SUMMARY OF MAIN COMMANDS
+@=set PC            A=set accumulator
+BS/BC=brk set/clear C=calculate
+D=disassemble       E=edit or assemble
+FB/FS=fill          G=go
+I=invert flag       J=JSR
+L=list memory       M=move block
+P=set panel start   Q=quit
+R=relocate          SB/SS=search
+V=verify blocks     WI=set window size
+X=set X register    Y=set Y register
+!=change ROM        <cr>=reset panel
+<space>=simulate    /=one level trace
+<TAB>=toggle format (hex/disassembly)
+#+END_EXAMPLE
+
+* sub_9184
+
+: 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+: 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27
+:                                                             ?  ?  ?
+:             Cy          h1 h1    h2 h2 Ye    b1 b2       Gr                                                          0d
+:                                              
+:                                           
+:
+
+* Simulator
+
+$97af - note compares to control flow opcodes: $20 (JSR abs), $4c (JMP
+abs), $6c (JMP ind), etc.
+
+Looks like $9872 might be detecting conditional branches.
