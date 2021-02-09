@@ -249,9 +249,6 @@ basic_O=$43c;value of O%
 basic_P=$440;value of P%
 XWRCHV=$db4
 
-; offset from start of workspace to the workspace code.
-workspace_code_offset=$92
-
 ;-------------------------------------------------------------------------
 
                 .if v201
@@ -294,6 +291,12 @@ breakpoint_msbs:
                 .fill max_num_breakpoints
 breakpoint_contents:
                 .fill max_num_breakpoints
+rest:
+                .cerror *>=$f6,"workspace is too large"
+                
+                ; there is more stuff here, but I don't yet know what!
+                ; At least a copy of $f6/$f7 at +$f6/+$f7, so those
+                ; two spots have to be free.
                 
                 .endv
                 
@@ -714,7 +717,7 @@ loc_81D7:
 		STA	word_4A+1	; pointer to breakpoint	address	LSBs
 		STA	word_4C+1	; pointer to breakpoint	address	MSBs
 		STA	word_4E+1
-		LDA	#workspace_code_offset
+		LDA	#workspace.code
 		STA	workspace_code	; points to code region	in workspace, +$92
 		LDA	#workspace.breakpoint_lsbs
 		STA	word_4A		; pointer to breakpoint	address	LSBs
@@ -1032,7 +1035,7 @@ cmd_help:
 ; ---------------------------------------------------------------------------
 
 workspace_code_begin:
-                .logical $592
+                .logical $500+workspace.code
 loc_8563:				
 		JSR	select_BASIC_ROM ;ww9c
 loc_8566:
@@ -3511,15 +3514,15 @@ loc_8FAE:
 		CPY	#$FF
 		BNE	loc_8FAE
 		LDA	workspace_pointer+1
-		LDY	#loc_8563+2-loc_8563+workspace_code_offset
+		LDY	#loc_8563+2-loc_8563+workspace.code
 		STA	(workspace_pointer),Y ;	update jsr $ww9c
-		LDY	#loc_8584+2-loc_8563+workspace_code_offset
+		LDY	#loc_8584+2-loc_8563+workspace.code
 		STA	(workspace_pointer),Y ;	update jsr $wwca
-		LDY	#loc_8595+2-loc_8563+workspace_code_offset
+		LDY	#loc_8595+2-loc_8563+workspace.code
 		STA	(workspace_pointer),Y ;	update jsr $wwca
-		LDY	#loc_85a7+2-loc_8563+workspace_code_offset
+		LDY	#loc_85a7+2-loc_8563+workspace.code
 		STA	(workspace_pointer),Y ;	update jsr $ww9f
-		LDY	#loc_85AC+2-loc_8563+workspace_code_offset
+		LDY	#loc_85AC+2-loc_8563+workspace.code
 		STA	(workspace_pointer),Y ;	update jmp $ww98
 		STA	workspace_code+1 ; points to code region in workspace, +$92
 		STA	word_4A+1	; pointer to breakpoint	address	LSBs
@@ -5563,7 +5566,7 @@ loc_98BF:
 		STA	byte_241	; input	source (OSBYTE 177, AUG	p186)
 		LDA	workspace_pointer+1
 		PHA
-		LDA	#loc_8576-loc_8563+workspace_code_offset
+		LDA	#loc_8576-loc_8563+workspace.code
 		PHA
 
 		LDA	current_rom	; if bit 6 set,	ROM has	been explicitly	set
@@ -5691,7 +5694,7 @@ simulate_branch:
 		STA	(workspace_code),Y ; fix up branch opcode at $wwb9
 		LDA	workspace_page_number ;	set by OSBYTE 240 (AUG p234)
 		PHA
-		LDA	#loc_858A-loc_8563+workspace_code_offset
+		LDA	#loc_858A-loc_8563+workspace.code
 		PHA
 		LDA	reg_p
 		PHA
