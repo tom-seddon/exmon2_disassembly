@@ -31,17 +31,21 @@ build:
 	$(_V)$(SHELLCMD) mkdir "$(DEST)"
 	$(_V)$(SHELLCMD) mkdir "$(BEEB_DEST)"
 
-	$(_V)$(MAKE) _assemble STEM=exmon2 BUILD_TYPE=0
+	$(_V)$(MAKE) _assemble STEM=exmon2 BUILD_TYPE=0 ELECTRON=0
+	$(_V)$(MAKE) _assemble STEM=exmon2e BUILD_TYPE=0 ELECTRON=1
 
 	$(_V)$(SHELLCMD) blank-line
 	$(_V)$(SHELLCMD) stat "$(DEST)/exmon2.rom"
+	$(_V)$(SHELLCMD) stat "$(DEST)/exmon2e.rom"
 	$(_V)$(SHELLCMD) sha1 "$(DEST)/exmon2.rom"
+	$(_V)$(SHELLCMD) sha1 "$(DEST)/exmon2e.rom"
 	$(_V)$(SHELLCMD) blank-line
 	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2.rom" "$(BEEB_DEST)/R.EXMON2"
+	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2e.rom" "$(BEEB_DEST)/R.EXMON2E"
 
 .PHONY:_assemble
 _assemble:
-	$(_V)$(TASS) -D BUILD_TYPE=$(BUILD_TYPE) exmon2.s65 "-L$(DEST)/$(STEM).lst" "-o$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
+	$(_V)$(TASS) -D BUILD_TYPE=$(BUILD_TYPE) -D ELECTRON=$(ELECTRON) exmon2.s65 "-L$(DEST)/$(STEM).lst" "-o$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
 
 ##########################################################################
 ##########################################################################

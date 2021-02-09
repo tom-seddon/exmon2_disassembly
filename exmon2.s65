@@ -13,6 +13,14 @@ oscli=$fff7
 
 timestamp='Sun,04 Mar 1990.14:15:47'
 
+
+                .if ELECTRON==0
+key_toggle_mode=9		; TAB
+                .else
+key_toggle_mode=';'		; no TAB on Electron
+                .endif
+
+
 basic_LOMEM=0	
 					
 basic_VARTOP=2
@@ -280,7 +288,7 @@ rest:
 		JMP	service
 ; ---------------------------------------------------------------------------
 		.byte %11000010		; has service entry; has language entry; bit 1 set
-		.byte $16		; expr:	rom_copyright&$ff
+		.byte rom_copyright - $8000		; expr:	rom_copyright&$ff
 		.byte	0
 rom_title:	.text 'EXMON II'        
 rom_version:
@@ -783,8 +791,8 @@ command_line_input_loop:
 loc_82A2:				
 		LDX	#0
 		STX	byte_21
-		CMP	#9
-		BEQ	handle_TAB
+		CMP	#key_toggle_mode
+		BEQ	handle_toggle_hex_mcode
 		CMP	#'*'
 		BNE	check_exclamation
 		JMP	handle_star
@@ -846,7 +854,7 @@ check_alpha:
 		RTS
 ; ---------------------------------------------------------------------------
 
-handle_TAB:				
+handle_toggle_hex_mcode:
 		LDA	#118		; update keyboard LEDs and retrieve CTRL status	(AUG p140)
 		JSR	osbyte
 		TXA			; A=CTRL status
@@ -968,7 +976,12 @@ cmd_help:
 		.text 'X=set X register    Y=set Y register',$D
 		.text '!=change ROM        <cr>=reset panel',$D
 		.text '<space>=simulate    /=one level trace',$D
-		.text '<TAB>=toggle format (hex/disassembly)'
+		.if key_toggle_mode==9
+		.text '<TAB>'
+		.else
+		.text key_toggle_mode
+		.endif
+		.text '=toggle format (hex/disassembly)'
 ; ---------------------------------------------------------------------------
 		NOP
 		JMP	command_line_loop_3
@@ -3555,7 +3568,7 @@ loc_906B:
 					; preserves: X/Y
 		JSR	flush_input_buffer
 		JSR	getch
-		CMP	#9
+		CMP	#key_toggle_mode
 		BNE	loc_9093
 		JMP	loc_A442
 ; ---------------------------------------------------------------------------
@@ -7873,7 +7886,7 @@ sub_A4C8:
 					; exit:	X>=$80 and C=1 if shift	was pressed
 					; preserves: A
 		PHP
-		CMP	#9
+		CMP	#key_toggle_mode
 		BNE	loc_A4E3
 		LDA	S_or_F_data	; buffer for search/fill data
 		STA	basic_P		; value	of P%
