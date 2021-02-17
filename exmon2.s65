@@ -11,36 +11,6 @@ osword=$fff1
 osbyte=$fff4
 oscli=$fff7
 
-                .if BUILD_TYPE==0
-
-                ; Exmon II 2.02
-end_with_ffs=false
-timestamp='Sun,04 Mar 1990.14:15:47'
-v202_alt=false
-v201=false
-       
-                .elsif BUILD_TYPE==1
-                
-                ; Exmon II 2.02 (alt)
-                ; https://stardot.org.uk/forums/viewtopic.php?f=32&t=21391
-end_with_ffs=true
-v202_alt=true
-v201=false
-
-                .elsif BUILD_TYPE==2
-
-                ; Exmon II 2.01
-                
-v201=true
-v202_alt=false
-end_with_ffs=true
-
-                .else
-
-                .error "Unknown BUILD_TYPE"
-
-                .endif
-
 basic_LOMEM=0	
 					
 basic_VARTOP=2
@@ -251,11 +221,7 @@ XWRCHV=$db4
 
 ;-------------------------------------------------------------------------
 
-                .if v201
 max_num_breakpoints=8
-                .else
-max_num_breakpoints=7
-                .endif
                 
 workspace: .block
 
@@ -316,20 +282,12 @@ rest:
 		.byte	0
 rom_title:	.text 'EXMON II'        
 rom_version:
-                .byte 0
-                .if v201
-                .text '2.01'
-                .else
-                .text '2.02'
-                .endif
+		.byte 0
+		.text '2.01'
 rom_copyright:
-                .byte 0
-                .if v201
-                .text '(C)1987 Beebug'
-                .else
-                .text '(C)1990 Beebug'
-                .endif
-                .byte 0
+		.byte 0
+		.text '(C)1987 Beebug'
+		.byte 0
                 
 ; ---------------------------------------------------------------------------
 
@@ -445,30 +403,13 @@ loc_809E:
 		TXA
 		BEQ	service_done
 
-                .if !v201
-		CPX	#2
-		BEQ	service_done
-                .endif
-
 loc_80B5:				
 		LDA	($F2),Y
 		CMP	#' '
-                .if v201
-                beq skip_spaces
-                .else
-		BEQ	match		; taken	if space - so it was a match
-                .endif
+		BEQ skip_spaces
 		CMP	#$D
 		BNE	service_done	; taken	if neither CR nor space	- so not a match
 
-                .if !v201
-match:
-		BIT	byte_27A	; check	for Tube
-		BMI	not_over_Tube_brk ; taken if Tube
-		CMP	#' '
-		BEQ	skip_spaces	; taken	if char	was space - so maybe some args?
-                .endif
-                
 loc_80C8:				
 		LDA	workspace_page_number ;	get workspace page
 		JSR	check_workspace_page ; check workspace page is valid.
@@ -525,10 +466,8 @@ loc_8106:
 		PLA
 		TAX
 		PLA
-                .if v201
-                bit byte_27A
-                bmi not_over_Tube_brk
-                .endif
+		BIT byte_27A
+		BMI not_over_Tube_brk
 		LDA	#142		; enter	language ROM
 					; AUG p166, MasRef D.2-44
 		JMP	osbyte
@@ -1056,14 +995,8 @@ loc_8576:
 		PHP
 		PHA
 loc_8578:
-                .if v201
-                lda $f4
-                sta $fe30
-                .else
-		LDA	#$FF
-		STA	$f4
-		STA	$FE30
-                .endif
+		LDA $f4
+		STA $fe30
 		PLA
 		PLP
 loc_8581:
@@ -1108,74 +1041,33 @@ workspace_code_end:
 
 ; --------------- S U B	R O U T	I N E ---------------------------------------
 
-                .if v201
-
 determine_BASIC_version:
-                ldy byte_24B
-                bmi loc_85CC
-                lda #$15
-                sta $f6
-                lda #$80
-                sta $f7
-                jsr osrdrm
-                and #$cf
-                cmp #7
-                bcs loc_85CC
-                cmp #5
-                beq loc_85CC
-                cmp #3
-                beq loc_85CC
-                bcc loc_85CE
-                lsr A
-                clc
-                adc #1
-                jmp loc_85CE
+		LDY byte_24B
+		BMI loc_85CC
+		LDA #$15
+		STA $f6
+		LDA #$80
+		STA $f7
+		JSR osrdrm
+		AND #$cf
+		CMP #7
+		BCS loc_85CC
+		CMP #5
+		BEQ loc_85CC
+		CMP #3
+		BEQ loc_85CC
+		BCC loc_85CE
+		LSR A
+		CLC
+		ADC #1
+		JMP loc_85CE
 
 loc_85CC:
-                lda #0
+		LDA #0
 
 loc_85CE:
-                sta BASIC_version
-                rts
-
-                .else
-
-determine_BASIC_version:		
-					
-		LDY	byte_24B	; ROM socket containing	BASIC (OSBYTE 187, AUG p195)
-		BPL	loc_85B9
-		LDY	#0
-		JMP	loc_85CE
-; ---------------------------------------------------------------------------
-
-loc_85B9:				
-		LDA	#8
-		STA	workspace_pointer
-		LDA	#$80 
-		STA	workspace_pointer+1
-		JSR	osrdrm		; read $8008 from BASIC	ROM - version number
-		LDY	#5
-
-loc_85C6:				
-		CMP	BASIC_versions-1,Y
-		BEQ	loc_85CE
-		DEY
-		BNE	loc_85C6
-
-loc_85CE:				
-					; determine_BASIC_version+1Aj
-		TYA
-		STA	BASIC_version	; version number of BASIC, or 0	if unknown/not present
+		STA BASIC_version
 		RTS
-
-BASIC_versions:	.byte	0		; 0 
-					; type 1: ver $00=BASIC	I
-		.byte	1		; type 2: ver $01=BASIC	II
-		.byte	4		; type 3: ver $04=BASIC	4
-		.byte $40 ; @		; type 4: ver $40=BASIC	4 from Master Compact
-		.byte	7		; type 5: ver $07=BASIC	4r32
-                
-                .endif
 
 ; ---------------------------------------------------------------------------
 
@@ -1186,27 +1078,17 @@ BASIC_versions:	.byte	0		; 0
 ; 2 = print line number on screen
 ; 3 = prompt for command line and execute the entered command(s) without reinitialising
 
-                .if v201
 num_basic_versions=4
-                .else
-num_basic_versions=5
-                .endif
                 
 basic_entry_points: .macro b1,b2,b4,b480,b4r32
                 .byte <\b1
                 .byte <\b2
                 .byte <\b4
                 .byte <\b480
-                .if !v201
-                .byte <\b4r32
-                .endif
                 .byte >\b1
                 .byte >\b2
                 .byte >\b4
                 .byte >\b480
-                .if !v201
-                .byte >\b4r32
-                .endif
                 .endm
                 
 ; http://8bs.com/basic/basic4-a085.htm
@@ -4095,17 +3977,9 @@ get_instruction_info_2:
 					; if bit 7 set otherwise, CMOS opcode.
 					; bits 0-6 are the mnemonic index.
 
-                .if v201 || v202_alt
+		CMP #$80
+		BCC loc_92a5
 
-                cmp #$80
-                bcc loc_92a5
-
-                .else
-                
-		BPL	loc_92A5	; taken	if bit 7 clear - instruction is	valid
-
-                .endif
-                
 		CMP	#$FF
 		BNE	maybe_cmos	; taken	if bit 7 set, but not $ff - instruction	is maybe CMOS
 
@@ -4122,26 +3996,10 @@ maybe_cmos:
 		CPX	#$FD       ; Master 128 MOS 3.20/3.50
 		BEQ	is_master
 		CPX	#$F5       ; Master Compact MOS 5.10
-                .if v201 || v202_alt
-                
-                BNE not_valid
-
-                .else
-                
-		BEQ	is_master
-                
-		LDX	#$FF
-                .cpu '65c02'
-                phx             ;$da - a NOP on NMOS 6502
-                inx
-                plx             ;$fa - a NOP on NMOS 6502
-                .cpu 'default'
-		BEQ	not_valid	; JMP, in effect
-
-                .endif
+		BNE not_valid
 
 is_master:				
-					; get_instruction_info_2+15j
+					; get_instruction_info_2+15j
 		AND	#$7F       ; clear cmos/invalid flag
 
 loc_92A5:				
@@ -5569,19 +5427,8 @@ loc_98BF:
 		LDA	#loc_8576-loc_8563+workspace.code
 		PHA
 
-		LDA	current_rom	; if bit 6 set,	ROM has	been explicitly	set
-                
-                .if v201
-
-                sta $f4
-
-                .else
-                
-		LDY	#loc_8578+1-loc_8563
-		STA	(workspace_code),Y ; fix up ROM	bank containing	routine
-
-                .endif
-                
+		LDA	current_rom	; if bit 6 set,	ROM has	been explicitly	set             
+		STA $f4
 		LDA	reg_p
 		PHA
 		LDY	reg_y
@@ -6646,92 +6493,92 @@ call_oswrsc:
 
 
 ; ---------------------------------------------------------------------------
-video_ULA_values:.byte $9C ; œ		
+video_ULA_values:.byte $9C
 					; video_ULA_values[i] is video ULA control register setting for	mode i
-		.byte $D8 ; Ø
-		.byte $F4 ; ô
-		.byte $9C ; œ
-		.byte $88 ; ˆ
-		.byte $C4 ; -
-		.byte $88 ; ˆ
-		.byte $4B ; K
+		.byte $D8
+		.byte $F4
+		.byte $9C
+		.byte $88
+		.byte $C4
+		.byte $88
+		.byte $4B
 crtc_values:	.byte 8		
 					; crtc_values[i*16+j] is CRTC value for	R(11-j)	in MEMODE i
-		.byte $67 ; g
+		.byte $67
 		.byte 7
 		.byte 1
-		.byte $22 ; "
+		.byte $22
 		.byte $20
 		.byte 0
-		.byte $26 ; &
-		.byte $28 ; (
-		.byte $62 ; b
-		.byte $50 ; P
-		.byte $7F ; 
+		.byte $26
+		.byte $28
+		.byte $62
+		.byte $50
+		.byte $7F
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 9
-		.byte $67 ; g
+		.byte $67
 		.byte 9
 		.byte 1
 		.byte $1B
 		.byte $19
 		.byte 2
 		.byte $1E
-		.byte $28 ; (
-		.byte $62 ; b
-		.byte $50 ; P
-		.byte $7F ; 
+		.byte $28
+		.byte $62
+		.byte $50
+		.byte $7F
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 8
-		.byte $67 ; g
+		.byte $67
 		.byte 7
 		.byte 1
-		.byte $22 ; "
+		.byte $22
 		.byte $20
 		.byte 0
-		.byte $26 ; &
-		.byte $24 ; $
-		.byte $31 ; 1
-		.byte $28 ; (
-		.byte $3F ; ?
+		.byte $26
+		.byte $24
+		.byte $31
+		.byte $28
+		.byte $3F
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 9
-		.byte $67 ; g
+		.byte $67
 		.byte 9
 		.byte 1
 		.byte $1B
 		.byte $19
 		.byte 2
 		.byte $1E
-		.byte $24 ; $
-		.byte $31 ; 1
-		.byte $28 ; (
-		.byte $3F ; ?
+		.byte $24
+		.byte $31
+		.byte $28
+		.byte $3F
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte 0
 		.byte $13
-		.byte $72 ; r
+		.byte $72
 		.byte $12
-		.byte $93 ; “
+		.byte $93
 		.byte $1B
 		.byte $19
 		.byte	2
 		.byte $1E
-		.byte $24 ; $
-		.byte $33 ; 3
-		.byte $28 ; (
-		.byte $3F ; ?
+		.byte $24
+		.byte $33
+		.byte $28
+		.byte $3F
 
 ; --------------- S U B	R O U T	I N E ---------------------------------------
 
@@ -8309,22 +8156,10 @@ loc_B016:
 		STA	$FE30
 		RTS
 
-
 ; ---------------------------------------------------------------------------
 
-                .if v201
-                ; Not sure what this is about - anyway, jsut do
-                ; whatever so it matches the ROM image I've got.
-                .fill $b800-*,$00
-                .endif
+		; Not sure what this is about - anyway, jsut do
+		; whatever so it matches the ROM image I've got.
+		.fill $b800-*,$00
 
-                .if end_with_ffs
-
-                .fill $c000-*,$ff
-
-                .else
-                
-*=$c000-len(timestamp)-1
-		.text timestamp,13
-
-                .endif
+		.fill $c000-*,$ff
