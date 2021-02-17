@@ -221,7 +221,7 @@ XWRCHV=$db4
 
 ;-------------------------------------------------------------------------
 
-max_num_breakpoints=8
+max_num_breakpoints=7
                 
 workspace: .block
 
@@ -283,10 +283,10 @@ rest:
 rom_title:	.text 'EXMON II'        
 rom_version:
 		.byte 0
-		.text '2.01'
+		.text '2.02'
 rom_copyright:
 		.byte 0
-		.text '(C)1987 Beebug'
+		.text '(C)1990 Beebug'
 		.byte 0
                 
 ; ---------------------------------------------------------------------------
@@ -403,12 +403,21 @@ loc_809E:
 		TXA
 		BEQ	service_done
 
+		CPX	#2
+		BEQ	service_done
+
 loc_80B5:				
 		LDA	($F2),Y
 		CMP	#' '
-		BEQ skip_spaces
+		BEQ	match		; taken	if space - so it was a match
 		CMP	#$D
 		BNE	service_done	; taken	if neither CR nor space	- so not a match
+
+match:
+		BIT	byte_27A	; check	for Tube
+		BMI	not_over_Tube_brk ; taken if Tube
+		CMP	#' '
+		BEQ	skip_spaces	; taken	if char	was space - so maybe some args?
 
 loc_80C8:				
 		LDA	workspace_page_number ;	get workspace page
@@ -466,8 +475,6 @@ loc_8106:
 		PLA
 		TAX
 		PLA
-		BIT byte_27A
-		BMI not_over_Tube_brk
 		LDA	#142		; enter	language ROM
 					; AUG p166, MasRef D.2-44
 		JMP	osbyte
@@ -995,8 +1002,9 @@ loc_8576:
 		PHP
 		PHA
 loc_8578:
-		LDA $f4
-		STA $fe30
+		LDA	#$FF
+		STA	$f4
+		STA	$FE30
 		PLA
 		PLP
 loc_8581:
@@ -1042,32 +1050,38 @@ workspace_code_end:
 ; --------------- S U B	R O U T	I N E ---------------------------------------
 
 determine_BASIC_version:
-		LDY byte_24B
-		BMI loc_85CC
-		LDA #$15
-		STA $f6
-		LDA #$80
-		STA $f7
-		JSR osrdrm
-		AND #$cf
-		CMP #7
-		BCS loc_85CC
-		CMP #5
-		BEQ loc_85CC
-		CMP #3
-		BEQ loc_85CC
-		BCC loc_85CE
-		LSR A
-		CLC
-		ADC #1
-		JMP loc_85CE
+		LDY	byte_24B	; ROM socket containing	BASIC (OSBYTE 187, AUG p195)
+		BPL	loc_85B9
+		LDY	#0
+		JMP	loc_85CE
+; ---------------------------------------------------------------------------
 
-loc_85CC:
-		LDA #0
+loc_85B9:
+		LDA	#8
+		STA	workspace_pointer
+		LDA	#$80
+		STA	workspace_pointer+1
+		JSR	osrdrm		; read $8008 from BASIC	ROM - version number
+		LDY	#5
+
+loc_85C6:
+		CMP	BASIC_versions-1,Y
+		BEQ	loc_85CE
+		DEY
+		BNE	loc_85C6
 
 loc_85CE:
-		STA BASIC_version
+					; determine_BASIC_version+1Aj
+		TYA
+		STA	BASIC_version	; version number of BASIC, or 0	if unknown/not present
 		RTS
+
+BASIC_versions:	.byte	0		; 0
+					; type 1: ver $00=BASIC	I
+		.byte	1		; type 2: ver $01=BASIC	II
+		.byte	4		; type 3: ver $04=BASIC	4
+		.byte $40 ; @		; type 4: ver $40=BASIC	4 from Master Compact
+		.byte	7		; type 5: ver $07=BASIC	4r32
 
 ; ---------------------------------------------------------------------------
 
@@ -1078,17 +1092,19 @@ loc_85CE:
 ; 2 = print line number on screen
 ; 3 = prompt for command line and execute the entered command(s) without reinitialising
 
-num_basic_versions=4
+num_basic_versions=5
                 
 basic_entry_points: .macro b1,b2,b4,b480,b4r32
                 .byte <\b1
                 .byte <\b2
                 .byte <\b4
                 .byte <\b480
+                .byte <\b4r32
                 .byte >\b1
                 .byte >\b2
                 .byte >\b4
                 .byte >\b480
+                .byte >\b4r32
                 .endm
                 
 ; http://8bs.com/basic/basic4-a085.htm
@@ -5427,8 +5443,11 @@ loc_98BF:
 		LDA	#loc_8576-loc_8563+workspace.code
 		PHA
 
-		LDA	current_rom	; if bit 6 set,	ROM has	been explicitly	set             
-		STA $f4
+		LDA	current_rom	; if bit 6 set,	ROM has	been explicitly	set
+
+		LDY	#loc_8578+1-loc_8563
+		STA	(workspace_code),Y ; fix up ROM	bank containing	routine
+
 		LDA	reg_p
 		PHA
 		LDY	reg_y
@@ -8157,9 +8176,5 @@ loc_B016:
 		RTS
 
 ; ---------------------------------------------------------------------------
-
-		; Not sure what this is about - anyway, jsut do
-		; whatever so it matches the ROM image I've got.
-		.fill $b800-*,$00
 
 		.fill $c000-*,$ff
