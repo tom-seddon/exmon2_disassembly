@@ -11,6 +11,8 @@ osword=$fff1
 osbyte=$fff4
 oscli=$fff7
 
+timestamp='Sun,04 Mar 1990.14:15:47'
+
 basic_LOMEM=0	
 					
 basic_VARTOP=2
@@ -402,7 +404,6 @@ loc_809E:
 		BEQ	loc_809E	; taken	if char	matched
 		TXA
 		BEQ	service_done
-
 		CPX	#2
 		BEQ	service_done
 
@@ -418,7 +419,7 @@ match:
 		BMI	not_over_Tube_brk ; taken if Tube
 		CMP	#' '
 		BEQ	skip_spaces	; taken	if char	was space - so maybe some args?
-
+                
 loc_80C8:				
 		LDA	workspace_page_number ;	get workspace page
 		JSR	check_workspace_page ; check workspace page is valid.
@@ -1056,22 +1057,22 @@ determine_BASIC_version:
 		JMP	loc_85CE
 ; ---------------------------------------------------------------------------
 
-loc_85B9:
+loc_85B9:				
 		LDA	#8
 		STA	workspace_pointer
-		LDA	#$80
+		LDA	#$80 
 		STA	workspace_pointer+1
 		JSR	osrdrm		; read $8008 from BASIC	ROM - version number
 		LDY	#5
 
-loc_85C6:
+loc_85C6:				
 		CMP	BASIC_versions-1,Y
 		BEQ	loc_85CE
 		DEY
 		BNE	loc_85C6
 
-loc_85CE:
-					; determine_BASIC_version+1Aj
+loc_85CE:				
+					; determine_BASIC_version+1Aj
 		TYA
 		STA	BASIC_version	; version number of BASIC, or 0	if unknown/not present
 		RTS
@@ -3993,9 +3994,7 @@ get_instruction_info_2:
 					; if bit 7 set otherwise, CMOS opcode.
 					; bits 0-6 are the mnemonic index.
 
-		CMP #$80
-		BCC loc_92a5
-
+		BPL	loc_92A5	; taken	if bit 7 clear - instruction is	valid
 		CMP	#$FF
 		BNE	maybe_cmos	; taken	if bit 7 set, but not $ff - instruction	is maybe CMOS
 
@@ -4012,9 +4011,17 @@ maybe_cmos:
 		CPX	#$FD       ; Master 128 MOS 3.20/3.50
 		BEQ	is_master
 		CPX	#$F5       ; Master Compact MOS 5.10
-		BNE not_valid
+		BEQ	is_master
+                
+		LDX	#$FF
+                .cpu '65c02'
+                phx             ;$da - a NOP on NMOS 6502
+                inx
+                plx             ;$fa - a NOP on NMOS 6502
+                .cpu 'default'
+		BEQ	not_valid	; JMP, in effect
 
-is_master:				
+is_master:
 					; get_instruction_info_2+15j
 		AND	#$7F       ; clear cmos/invalid flag
 
@@ -5444,7 +5451,7 @@ loc_98BF:
 		PHA
 
 		LDA	current_rom	; if bit 6 set,	ROM has	been explicitly	set
-
+                
 		LDY	#loc_8578+1-loc_8563
 		STA	(workspace_code),Y ; fix up ROM	bank containing	routine
 
@@ -8175,6 +8182,8 @@ loc_B016:
 		STA	$FE30
 		RTS
 
+
 ; ---------------------------------------------------------------------------
 
-		.fill $c000-*,$ff
+*=$c000-len(timestamp)-1
+		.text timestamp,13
