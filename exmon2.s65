@@ -294,6 +294,9 @@ rom_title:	.text 'EXMON II'
 rom_version:
 		.byte 0
 		.text '2.03'
+		.if ELECTRON==1
+		.text 'E'
+		.endif
 rom_copyright:
 		.byte 0
 		.text '(C)1990 Beebug'
