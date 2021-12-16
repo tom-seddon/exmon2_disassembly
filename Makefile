@@ -17,11 +17,6 @@ build:
 	@sha1sum "$(DEST)/exmon2.rom"
 	@echo
 
-	@sha1sum orig/exmon2-2.02.rom
-	@sha1sum orig/exmon2-2.02-alt.rom
-	@sha1sum orig/exmon2-2.01.rom
-	@echo
-
 .PHONY:_assemble
 _assemble:
 	$(TASS) -D BUILD_TYPE=$(BUILD_TYPE) exmon2.s65 "-L$(DEST)/$(STEM).lst" "-o$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
