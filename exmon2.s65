@@ -285,7 +285,7 @@ rest:
 rom_title:	.text 'EXMON II'        
 rom_version:
 		.byte 0
-		.text '2.02'
+		.text '2.03'
 rom_copyright:
 		.byte 0
 		.text '(C)1990 Beebug'
@@ -308,13 +308,6 @@ service:
 		CMP	#$FE 
 		BEQ	service_tube_post_init ; taken if Tube post init
 		CMP	#3
-		BNE	service_done
-
-service_autoboot:
-		LDX	#$FF
-		JSR	print_rom_title
-		JSR	osnewl
-		JSR	osnewl
 
 service_done:				
 		PLA
