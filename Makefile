@@ -16,6 +16,7 @@ PWD:=$(shell $(PYTHON) submodules/shellcmd.py/shellcmd.py realpath .)
 SHELLCMD:=$(PYTHON) "$(PWD)/submodules/shellcmd.py/shellcmd.py"
 
 DEST:=$(PWD)/.build
+BEEB_DEST:=$(PWD)/beeb/exmon2_build/z
 
 ##########################################################################
 ##########################################################################
@@ -28,6 +29,7 @@ _V:=$(if $(VERBOSE),,@)
 .PHONY:build
 build:
 	$(_V)$(SHELLCMD) mkdir "$(DEST)"
+	$(_V)$(SHELLCMD) mkdir "$(BEEB_DEST)"
 
 	$(_V)$(MAKE) _assemble STEM=exmon2 BUILD_TYPE=0
 
@@ -35,6 +37,7 @@ build:
 	$(_V)$(SHELLCMD) stat "$(DEST)/exmon2.rom"
 	$(_V)$(SHELLCMD) sha1 "$(DEST)/exmon2.rom"
 	$(_V)$(SHELLCMD) blank-line
+	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2.rom" "$(BEEB_DEST)/R.EXMON2"
 
 .PHONY:_assemble
 _assemble:
