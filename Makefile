@@ -18,6 +18,8 @@ SHELLCMD:=$(PYTHON) "$(PWD)/submodules/shellcmd.py/shellcmd.py"
 DEST:=$(PWD)/.build
 BEEB_DEST:=$(PWD)/beeb/exmon2_build/z
 
+VERSION:=2.03
+
 ##########################################################################
 ##########################################################################
 
@@ -31,8 +33,8 @@ build:
 	$(_V)$(SHELLCMD) mkdir "$(DEST)"
 	$(_V)$(SHELLCMD) mkdir "$(BEEB_DEST)"
 
-	$(_V)$(MAKE) _assemble STEM=exmon2 BUILD_TYPE=0 ELECTRON=false
-	$(_V)$(MAKE) _assemble STEM=exmon2e BUILD_TYPE=0 ELECTRON=true
+	$(_V)$(MAKE) _assemble STEM=exmon2 ELECTRON=false
+	$(_V)$(MAKE) _assemble STEM=exmon2e ELECTRON=true
 
 	$(_V)$(SHELLCMD) blank-line
 	$(_V)$(SHELLCMD) stat "$(DEST)/exmon2.rom"
@@ -43,9 +45,12 @@ build:
 	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2.rom" "$(BEEB_DEST)/R.EXMON2"
 	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2e.rom" "$(BEEB_DEST)/R.EXMON2E"
 
+##########################################################################
+##########################################################################
+
 .PHONY:_assemble
 _assemble:
-	$(_V)$(TASS) -D BUILD_TYPE=$(BUILD_TYPE) -D ELECTRON=$(ELECTRON) exmon2.s65 -L "$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
+	$(_V)$(TASS) -D ELECTRON=$(ELECTRON) -D VERSION=\"$(VERSION)\" exmon2.s65 -L "$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
 
 ##########################################################################
 ##########################################################################
@@ -61,3 +66,13 @@ clean:
 lkg:
 	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2.rom" "$(DEST)/lkg.exmon2.rom"
 	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2e.rom" "$(DEST)/lkg.exmon2e.rom"
+
+##########################################################################
+##########################################################################
+
+.PHONY:release
+release: ZIP:=$(PWD)/releases/exmon2-$(VERSION).zip
+release:
+	$(_V)$(MAKE) build
+	$(_V)$(PYTHON) submodules/beeb/bin/ssd_create.py -o "$(DEST)/exmon2.ssd" "$(BEEB_DEST)/R.EXMON2" "$(BEEB_DEST)/R.EXMON2E"
+	$(_V)zip -9 -j "$(ZIP)" "$(DEST)/exmon2.ssd" "$(DEST)/exmon2.rom" "$(DEST)/exmon2e.rom"
