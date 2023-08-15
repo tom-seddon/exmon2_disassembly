@@ -45,7 +45,7 @@ build:
 
 .PHONY:_assemble
 _assemble:
-	$(_V)$(TASS) -D BUILD_TYPE=$(BUILD_TYPE) -D ELECTRON=$(ELECTRON) exmon2.s65 "-L$(DEST)/$(STEM).lst" "-o$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
+	$(_V)$(TASS) -D BUILD_TYPE=$(BUILD_TYPE) -D ELECTRON=$(ELECTRON) exmon2.s65 -L "$(DEST)/$(STEM).lst" "-l$(DEST)/$(STEM).sym" "-o$(DEST)/$(STEM).rom"
 
 ##########################################################################
 ##########################################################################
