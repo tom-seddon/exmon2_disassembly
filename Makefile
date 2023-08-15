@@ -18,7 +18,7 @@ SHELLCMD:=$(PYTHON) "$(PWD)/submodules/shellcmd.py/shellcmd.py"
 DEST:=$(PWD)/.build
 BEEB_DEST:=$(PWD)/beeb/exmon2_build/z
 
-VERSION:=2.03
+VERSION:=2.04
 
 ##########################################################################
 ##########################################################################
