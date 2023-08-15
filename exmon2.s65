@@ -11,8 +11,6 @@ osword=$fff1
 osbyte=$fff4
 oscli=$fff7
 
-timestamp='Sun,04 Mar 1990.14:15:47'
-
 ;-------------------------------------------------------------------------
 
                 .if ELECTRON
@@ -332,13 +330,13 @@ rest:
                 .byte %11000010         ; has service entry; has language entry; bit 1 set
                 .byte rom_copyright - $8000             ; expr: rom_copyright&$ff
                 .byte   0
-rom_title:      .text 'EXMON II'        
+rom_title:      .text 'EXMON II'
+                .if ELECTRON
+                .text 'e'
+                .endif
 rom_version:
                 .byte 0
-                .text '2.03'
-                .if ELECTRON
-                .text 'E'
-                .endif
+                .text VERSION
 rom_copyright:
                 .byte 0
                 .text '(C)1990 Beebug'
@@ -8259,8 +8257,3 @@ loc_B016:
 		sta	romsel
 		rts
                 .endif
-
-; ---------------------------------------------------------------------------
-
-*=$c000-len(timestamp)-1
-		.text timestamp,13

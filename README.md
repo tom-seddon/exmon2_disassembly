@@ -27,6 +27,8 @@ released; perhaps it's simply been lost to time.
 The manual's Electron notes do largely apply to this version. Please
 also note the following:
 
+- the ROM reports itself as `EXMON IIe` rather than `EXMON II`
+
 - when using the editor, press FUNC+SHIFT+up/down to scroll to the
   next half page
   
