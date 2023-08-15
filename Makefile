@@ -31,8 +31,8 @@ build:
 	$(_V)$(SHELLCMD) mkdir "$(DEST)"
 	$(_V)$(SHELLCMD) mkdir "$(BEEB_DEST)"
 
-	$(_V)$(MAKE) _assemble STEM=exmon2 BUILD_TYPE=0 ELECTRON=0
-	$(_V)$(MAKE) _assemble STEM=exmon2e BUILD_TYPE=0 ELECTRON=1
+	$(_V)$(MAKE) _assemble STEM=exmon2 BUILD_TYPE=0 ELECTRON=false
+	$(_V)$(MAKE) _assemble STEM=exmon2e BUILD_TYPE=0 ELECTRON=true
 
 	$(_V)$(SHELLCMD) blank-line
 	$(_V)$(SHELLCMD) stat "$(DEST)/exmon2.rom"

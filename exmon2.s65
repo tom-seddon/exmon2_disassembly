@@ -14,10 +14,8 @@ oscli=$fff7
 timestamp='Sun,04 Mar 1990.14:15:47'
 
 
-                .if ELECTRON==0
-key_toggle_mode=9               ; TAB
-romsel=$fe30
-                .else
+                .if ELECTRON
+
 key_toggle_mode=';'             ; no TAB on Electron
 
 ; Routines in OS ROM to select a ROM. There's enough hard-coded
@@ -42,6 +40,11 @@ key_toggle_mode=';'             ; no TAB on Electron
 
 os_select_rom_x=$e39f           ;doesn't preserve A :(
 os_select_rom_a=$e3a0
+
+                .else
+                
+key_toggle_mode=9               ; TAB
+romsel=$fe30
 
                 .endif
 
@@ -319,7 +322,7 @@ rom_title:      .text 'EXMON II'
 rom_version:
                 .byte 0
                 .text '2.03'
-                .if ELECTRON==1
+                .if ELECTRON
                 .text 'E'
                 .endif
 rom_copyright:
@@ -1027,13 +1030,13 @@ select_BASIC_ROM:
                 ldx     byte_24B        ; ROM socket containing BASIC (OSBYTE 187, AUG p195)
 
 loc_8570:
-                .if ELECTRON==0
-                stx     $f4
-                stx     romsel
-                .else
+                .if ELECTRON
                 pha
                 jsr os_select_rom_x
                 pla
+                .else
+                stx     $f4
+                stx     romsel
                 .endif
                 rts
 ; ---------------------------------------------------------------------------
@@ -1043,12 +1046,12 @@ loc_8576:
                 pha
 loc_8578:
                 lda     #$FF
-                .if ELECTRON==0
-                sta     $f4
-                sta     romsel
-                .else
+                .if ELECTRON
                 and #$0f        ;don't make a mess...
                 jsr os_select_rom_a
+                .else
+                sta     $f4
+                sta     romsel
                 .endif
                 pla
                 plp
@@ -1078,13 +1081,13 @@ select_exmon2_rom:
                 pha
 loc_859D:
                 lda     #$FF
-                .if ELECTRON==0
-                sta     $f4
-                sta     romsel
-                .else
+                .if ELECTRON
                 jsr os_select_rom_a
                 nop
                 nop
+                .else
+                sta     $f4
+                sta     romsel
                 .endif
                 pla
                 plp
@@ -8198,7 +8201,7 @@ sub_B000:
 		sty	workspace_pointer
 		ldy	word_B+1
 		sty	workspace_pointer+1
-                .if ELECTRON==0
+                .if !ELECTRON
 		bmi	loc_B016	; taken	if attempting to write to ROM/OS/IO
 		bit	byte_5B		; bit 7	set = shadow RAM on???
 					; bit 6	set = sub_B000 pages in	ANDY for $8000...$bfff
@@ -8219,7 +8222,7 @@ loc_B011:
 		rts
 ; ---------------------------------------------------------------------------
 
-                .if ELECTRON==0
+                .if !ELECTRON
 loc_B016:				
 		cpy	#$C0 
 		bcs	loc_B011	; taken	if attempting to write to MOS/IO
