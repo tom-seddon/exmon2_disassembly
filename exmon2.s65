@@ -16,8 +16,33 @@ timestamp='Sun,04 Mar 1990.14:15:47'
 
                 .if ELECTRON==0
 key_toggle_mode=9		; TAB
+romsel=$fe30
                 .else
 key_toggle_mode=';'		; no TAB on Electron
+
+; Routines in OS ROM to select a ROM. There's enough hard-coded
+; addresses already. Will one more hurt?
+
+; e39f  txa
+; e3a0  sta $f4
+; e3a2  jsr $e3a9
+; e3a5  sta $fe05
+; e3a8  rts
+; e3a9  pha
+; e3aa  lda #12
+; e3ac  sta $fe05
+; e3af  pla
+; 3eb0  rts
+
+; ff9c  pla
+; ff9d  jsr $e3a0
+; ffa0  pla
+; ffa1  plp
+; ffa2  rts
+
+os_select_rom_x=$e39f           ;doesn't preserve A :(
+os_select_rom_a=$e3a0
+
                 .endif
 
 
@@ -318,7 +343,6 @@ service:
 		BEQ	service_star	; taken	if * command
 		CMP	#$FE 
 		BEQ	service_tube_post_init ; taken if Tube post init
-		CMP	#3
 
 service_done:				
 		PLA
@@ -1002,9 +1026,15 @@ loc_8569:
 select_BASIC_ROM:
 		LDX	byte_24B	; ROM socket containing	BASIC (OSBYTE 187, AUG p195)
 
-loc_8570:				
+loc_8570:
+                .if ELECTRON==0
 		STX	$f4
-		STX	$FE30
+		STX	romsel
+                .else
+                pha
+                jsr os_select_rom_x
+                pla
+                .endif
 		RTS
 ; ---------------------------------------------------------------------------
 ;change ROM and call routine
@@ -1013,8 +1043,13 @@ loc_8576:
 		PHA
 loc_8578:
 		LDA	#$FF
+                .if ELECTRON==0
 		STA	$f4
-		STA	$FE30
+		STA	romsel
+                .else
+                and #$0f        ;don't make a mess...
+                jsr os_select_rom_a
+                .endif
 		PLA
 		PLP
 loc_8581:
@@ -1043,8 +1078,14 @@ select_exmon2_rom:
 		PHA
 loc_859D:
 		LDA	#$FF
+                .if ELECTRON==0
 		STA	$f4
-		STA	$FE30
+		STA	romsel
+                .else
+                jsr os_select_rom_a
+                nop
+                nop
+                .endif
 		PLA
 		PLP
 		RTS
@@ -8144,12 +8185,20 @@ loc_A5E8:
                 
 ; --------------- S U B	R O U T	I N E ---------------------------------------
 
+; TODO haven't put much effort into figuring out when this routine
+; gets called - but presumably it's gated by a B+-or-better check of
+; some kind, somewhere, as it calls OSWRSC. So maybe it'll never get
+; called on the Electron?
+;
+; Anyway, if it ever does, it'll fall through to the default write
+; routine.
 
 sub_B000:				
 		LDY	word_B
 		STY	workspace_pointer
 		LDY	word_B+1
 		STY	workspace_pointer+1
+                .if ELECTRON==0
 		BMI	loc_B016	; taken	if attempting to write to ROM/OS/IO
 		BIT	byte_5B		; bit 7	set = shadow RAM on???
 					; bit 6	set = sub_B000 pages in	ANDY for $8000...$bfff
@@ -8161,6 +8210,7 @@ sub_B000:
 					;	 (workspace_pointer) = address
 					; exit:	Y=0
 					; preserves: X
+                .endif
 ; ---------------------------------------------------------------------------
 
 loc_B011:				
@@ -8169,6 +8219,7 @@ loc_B011:
 		RTS
 ; ---------------------------------------------------------------------------
 
+                .if ELECTRON==0
 loc_B016:				
 		CPY	#$C0 
 		BCS	loc_B011	; taken	if attempting to write to MOS/IO
@@ -8181,16 +8232,16 @@ loc_B016:
 		LDA	$f4
 		ORA	#$80       ; set the ANDY bit
 		STA	$f4
-		STA	$FE30
+		STA	romsel
 		TYA
 		LDY	#0
 		STA	(workspace_pointer),Y
 		LDA	$f4
 		AND	#$7F       ; unset the ANDY bit
 		STA	$f4
-		STA	$FE30
+		STA	romsel
 		RTS
-
+                .endif
 
 ; ---------------------------------------------------------------------------
 
