@@ -1,3 +1,5 @@
+#+STARTUP: overview
+
 * TODOs
 
 ** DONE sort out big-endian table at $8346
@@ -458,3 +460,12 @@ $97af - note compares to control flow opcodes: $20 (JSR abs), $4c (JMP
 abs), $6c (JMP ind), etc.
 
 Looks like $9872 might be detecting conditional branches.
+
+* Case-sensitive source
+
+Before:
+
+#+begin_example
+3aa405aefefa591cab3e6fc6caab08238bdb5180  c:\tom\github\exmon2_disassembly/.build/exmon2.rom
+37489bcbb8c4d1b16b97dca28e317dc0a70c99f7  c:\tom\github\exmon2_disassembly/.build/exmon2e.rom
+#+end_example

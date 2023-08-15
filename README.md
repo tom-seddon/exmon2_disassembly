@@ -1,18 +1,39 @@
-# Exmon II
+# EXMON II
 
 (C) 1990 Beebug
 
-An updated version of Exmon II, a machine code monitor for the BBC
-Micro, with updates and code comments from
-https://github.com/mincebert and https://github.com/tom-seddon.
-
-Based on Exmon II version 2.02.
+An updated version of EXMON II, with updates and code comments from
+https://github.com/mincebert and https://github.com/tom-seddon. Based
+on BBC Micro EXMON II version 2.02.
 
 Additional features:
 
 - doesn't print `EXMON II` when you press BREAK
 
+- now includes a properly Electron-compatible version
+
 More to come. Watch this space!
+
+# Instructions
+
+See `EXMONIImanual.pdf` in the repo.
+
+# Electron-specific instructions
+
+The manual refers to an Electron version of EXMON II, but there don't
+seem to be any copies available. Perhaps it was planned, then never
+released; perhaps it's simply been lost to time.
+
+The manual's Electron notes do largely apply to this version. Please
+also note the following:
+
+- when using the editor, press FUNC+SHIFT+up/down to scroll to the
+  next half page
+  
+- use `;` to toggle between hex view and disassembly
+
+- the dual screen commands have been removed - but much of the code
+  remains, so problems are possible...
 
 # Building
 
@@ -22,7 +43,7 @@ More to come. Watch this space!
 
 - Python 3.x
 
-Additional dependencies are provided as pre-build EXEs in the repo.
+Additional dependencies are provided as pre-built EXEs in the repo.
 
 ### POSIX-type
 
@@ -48,11 +69,20 @@ the following from inside the working copy:
 Run `make` in the root of the working copy. (A `make.bat` is supplied
 for Windows, which will run the supplied copy of GNU Make.)
 
-The output ROM image is `.build/exmon2.rom` in the working copy.
+The output ROM images are in the `.build` folder in the working copy:
+
+- `exmon2.rom` is for the BBC B/B+/Master
+- `exmon2e.rom` is for the Electron
+
+## Using the ROMs on your BBC or emulator
+
+The .rom files are ordinary 16 KB ROM images. Transfer them to your
+BBC, use them to program a PROM, load them into an emulator.
 
 If you use [BeebLink](https://github.com/tom-seddon/beeblink/), add
 `beeb` in the working copy to your BeebLink search path. You'll get a
-volume called `exmon2_build` containing `:Z.R.EXMON2`.
+volume called `exmon2_build` containing `:Z.R.EXMON2` (BBC B/B+/Master
+version) and `:Z.R.EXMON2E` (Electron version).
 
 # Building an original copy
 
@@ -60,8 +90,12 @@ Check out any of the following tags to build the corresponding
 version. You'll need a POSIX-type system with the usual POSIX-type
 stuff installed, along with
 [64tass](https://sourceforge.net/projects/tass64/) on the path.
+(Building these on Windows is an exercise for the reader. Sorry!)
 
 The resulting ROM in each case is `.build/exmon2.rom`.
+
+These ROMs are not Electron-compatible, though some stuff will work to
+an extent.
 
 ## v2.02
 
