@@ -13,6 +13,7 @@ oscli=$fff7
 
 timestamp='Sun,04 Mar 1990.14:15:47'
 
+;-------------------------------------------------------------------------
 
                 .if ELECTRON
 
@@ -48,7 +49,20 @@ romsel=$fe30
 
                 .endif
 
+;-------------------------------------------------------------------------
 
+teletext_code: .function _code
+                .cerror !(_code>=128&&_code<160),"Not a teletext control code"
+                .if ELECTRON
+_value=32
+                .else
+_value=_code
+                .endif
+                .endfunction _value
+                
+;-------------------------------------------------------------------------
+
+                
 basic_LOMEM=0   
                                         
 basic_VARTOP=2
@@ -2564,7 +2578,7 @@ print_newline_then_following_string_in_red:
 
 print_following_string_in_red:          
                                         
-                lda     #129
+                lda     #teletext_code(129)
                 jsr     oswrch
                 jmp     print_following_string
 
@@ -3170,7 +3184,7 @@ draw_panel:
                 .byte 39
                 .byte 0
 ; yellow
-                .byte 131
+                .byte teletext_code(131)
 ; ---------------------------------------------------------------------------
                 nop
                 jsr     hide_cursor
@@ -3199,16 +3213,16 @@ draw_panel:
                                         ; (Exmon) flag indicating which text window is active???
                                         ;         bit 7 = printer on/off
                 bpl     loc_8E32
-                lda     #136            ; flashing
+                lda     #teletext_code(136) ; flashing
 
 loc_8E32:                               
                 jsr     oswrch
                 jsr     print_following_string
 ; ---------------------------------------------------------------------------
-                .byte 130               ; green
+                .byte teletext_code(130) ; green
                 .text 'EXMON II by Beebugsoft '
-                .byte 137               ; flash off
-                .byte 131               ; yellow
+                .byte teletext_code(137) ; flash off
+                .byte teletext_code(131) ; yellow
 ; ---------------------------------------------------------------------------
                 nop
                 jsr     clear_line_buffer
@@ -3274,7 +3288,7 @@ loc_8EC0:
                 jsr     print_following_string
 ; ---------------------------------------------------------------------------
 aBrks:          .text 'BRKs :'
-                .byte 134               ; cyan
+                .byte teletext_code(134) ; cyan
 ; ---------------------------------------------------------------------------
                 nop
                 ldy     #0
@@ -3312,7 +3326,7 @@ loc_8EF5:
                 ldx     #$1F
                 jsr     print_following_string
 ; ---------------------------------------------------------------------------
-                .byte 134               ; cyan
+                .byte teletext_code(134) ; cyan
 ; ---------------------------------------------------------------------------
                 nop
 
@@ -3860,11 +3874,11 @@ loc_91D5:
                                         ; disassemble_instruction+3Dj
                 lda     #$D
                 sta     line_buffer+$27
-                lda     #134
+                lda     #teletext_code(134)
                 sta     line_buffer+4
-                lda     #131
+                lda     #teletext_code(131)
                 sta     line_buffer+$D
-                lda     #130
+                lda     #teletext_code(130)
                 sta     line_buffer+$13
                 rts
 ; ---------------------------------------------------------------------------
@@ -7557,7 +7571,7 @@ sub_A2EA:
 
 		jsr	print_following_string
 ; ---------------------------------------------------------------------------
-		.byte 130
+		.byte teletext_code(130)
 		.text 'Found'
 ; ---------------------------------------------------------------------------
 		nop
@@ -7746,9 +7760,9 @@ loc_A3F4:
 sub_A3FA:				
 					; RAM:A3C1p
 		jsr	sub_891F
-		lda	#134
+		lda	#teletext_code(134)
 		sta	line_buffer+5
-		lda	#131
+		lda	#teletext_code(131)
 		sta	line_buffer+$1E
 		ldy	#0
 		ldx	#6
@@ -7865,10 +7879,10 @@ loc_A485:
 		jsr	print_following_string
 ; ---------------------------------------------------------------------------
 		.byte	8		; 0
-		.byte 131		; 1
+		.byte teletext_code(131) ; 1
 		.byte	9		; 2
 		.byte	9		; 3
-		.byte 134		; 4
+		.byte teletext_code(134) ; 4
 		.byte	8		; 5
 		.byte	8		; 6
 		.byte	8		; 7
