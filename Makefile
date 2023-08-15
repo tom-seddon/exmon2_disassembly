@@ -56,3 +56,8 @@ clean:
 
 ##########################################################################
 ##########################################################################
+
+.PHONY:lkg
+lkg:
+	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2.rom" "$(DEST)/lkg.exmon2.rom"
+	$(_V)$(SHELLCMD) copy-file "$(DEST)/exmon2e.rom" "$(DEST)/lkg.exmon2e.rom"
