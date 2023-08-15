@@ -9,7 +9,7 @@ endif
 ##########################################################################
 ##########################################################################
 
-TASS:=$(TASS) --m65xx --nostart -Wall -Wno-implied-reg -q
+TASS:=$(TASS) --m65xx --nostart -Wall --quiet --case-sensitive
 #--long-branch
 
 PWD:=$(shell $(PYTHON) submodules/shellcmd.py/shellcmd.py realpath .)
