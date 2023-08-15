@@ -1297,7 +1297,7 @@ aBasic:		.text $16,7,'BASIC',$D,$D
 		LDA	workspace_code+1 ; points to code region in workspace, +$92
 		STA	word_F2+1
 		JSR	swap_zp_and_workspaces
-		LDY	#3
+		LDY	#loc_8566-loc_8563
 		LDA	#$4C 
 		STA	(word_F2),Y
 		JMP	(word_F2)
